@@ -40,8 +40,9 @@ export const TableModal: React.FC<TableModalProps> = ({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<TableFormInput, TableFormValues>({
-    resolver: zodResolver(tableSchema),
+  } = useForm< TableFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(tableSchema) as any,
     defaultValues: {
       number: 1,
       capacity: 4,
@@ -114,7 +115,7 @@ export const TableModal: React.FC<TableModalProps> = ({
               type="number"
               min={1}
               placeholder="Ej. 1, 2, 10"
-              {...register('number')}
+              {...register('number', {valueAsNumber:true}) }
               className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500"
             />
             {errors.number && (
@@ -131,7 +132,7 @@ export const TableModal: React.FC<TableModalProps> = ({
               type="number"
               min={1}
               placeholder="Ej. 4"
-              {...register('capacity')}
+              {...register('capacity' , {valueAsNumber:true})}
               className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500"
             />
             {errors.capacity && (

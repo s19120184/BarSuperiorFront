@@ -8,11 +8,11 @@ export enum TableStatus {
 }
 
 export const tableSchema = z.object({
-  number: z.coerce
+  number: z
     .number({ error: 'El número de mesa es obligatorio' })
     .int('Debe ser un número entero')
     .positive('El número debe ser mayor a 0'),
-  capacity: z.coerce
+  capacity: z
     .number()
     .int('La capacidad debe ser un entero')
     .positive('La capacidad mínima es de 1 persona')

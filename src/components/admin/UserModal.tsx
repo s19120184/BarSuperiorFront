@@ -37,7 +37,8 @@ export const UserModal: React.FC<UserModalProps> = ({
     reset,
     formState: { errors },
   } = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(userSchema) as any,
     defaultValues: {
       fullName: '',
       email: '',
