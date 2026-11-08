@@ -51,7 +51,8 @@ export default function AdminLayout({
     { label: "Categorías", href: "/admin/categories", icon: Layers },
     {label:'Historial de ventas', href:'/admin/shifts-history', icon: HistoryIcon},
     {label:'Personal', href:'/admin/users', icon:User2Icon },
-    {label:'Mesas', href:'/admin/tables', icon:LucideTable }
+    {label:'Mesas', href:'/admin/tables', icon:LucideTable },
+    {label:'Ordenes', href:'/admin/orders', icon:LucideTable },
   ];
 
   return (

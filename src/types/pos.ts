@@ -36,6 +36,18 @@ export interface Order {
   };
 }
 
+export interface AdminOrderOpen{
+   id: string;
+  status: 'OPEN' | 'PAID' | 'CANCELLED';
+  total: number;
+  items: OrderItem[];
+  table: {
+    id: string;
+    number: string | number;
+    status: "AVAILABLE" | 'OCCUPIED' | 'RESERVED' | 'INACTIVE'
+  };
+}
+
 export interface DraftItem {
   product: Product;
   quantity: number;

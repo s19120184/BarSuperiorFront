@@ -7,7 +7,7 @@ export const useProducts = (tableId: string) => {
   const { table, activeOrder, categories, products, isLoading, sendRound } =
     usePosOrder(tableId);
 
-  console.log(activeOrder);
+  //console.log(activeOrder);
 
   const { draftItems, addProduct, removeProduct, updateQuantity, clearDraft } =
     useDraftOrderStore();
@@ -30,6 +30,10 @@ export const useProducts = (tableId: string) => {
 
   // Cálculos de totales
   const draftTotal = useMemo(() => {
+   
+    //console.log( draftItems.map(item=> item.product ) )
+
+    
     return draftItems.reduce(
       (sum, item) => sum + item.product.price * item.quantity,
       0

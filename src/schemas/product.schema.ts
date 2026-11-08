@@ -51,7 +51,7 @@ import { z } from 'zod';
 
 export const productSchema = z.object({
   title: z.string().min(2, 'El título es obligatorio'),
-  price: z.coerce.number().positive('El precio debe ser mayor a 0').optional(),
+  price: z.coerce.number().min(0, 'El precio no puede ser negativo').optional(),
   slug: z.string().optional(),
   sizes: z.array(z.string()).default([]),
   is_prepared: z.boolean().default(false),

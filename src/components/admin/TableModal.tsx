@@ -21,7 +21,7 @@ interface TableModalProps {
   existingZones: string[];
 }
 
-const COMMON_ZONES = ['Salón Principal', 'Barra', 'Privado', 'Planta Alta'];
+const COMMON_ZONES = ['Salón Principal', 'Barra', 'Privado', 'Planta Alta', 'pedido'];
 
 export const TableModal: React.FC<TableModalProps> = ({
   isOpen,

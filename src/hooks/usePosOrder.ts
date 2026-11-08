@@ -2,9 +2,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { Product, Category, Order, DraftItem } from '../types/pos';
+import { Product, Category, Order, DraftItem, AdminOrderOpen } from '../types/pos';
 import { Table } from '../types/table';
 import { api } from '../lib/api-client';
+import { toast } from 'sonner';
 
 
 export const usePosOrder = (tableId?: string) => {
@@ -17,7 +18,24 @@ export const usePosOrder = (tableId?: string) => {
       const { data } = await api.get<Table>(`/tables/${tableId}`);
       return data;
     },
+    enabled: Boolean(tableId), // 🛑 Bloquea peticiones /tables/undefined
+    staleTime: 1000 * 60,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
+
+  //obtener las ordenes abiertas
+  const openOrders = useQuery({
+    queryKey:['openOrders'],
+    queryFn:async()=>{
+      const {data} = await api.get<AdminOrderOpen[]>('/orders?status=OPEN')
+      return data
+    },
+     staleTime: 1000 * 60 * 2, // ⏱️ Considera los datos frescos por 2 minutos
+    gcTime: 1000 * 60 * 5,
+    refetchOnMount: false, // 🛑 No dispara GET cada vez que entras a la pantalla si los datos están frescos
+    refetchOnWindowFocus: false, // 🛑 Evita peticiones al alternar pestañas
+  })
 
   const activeOrderQuery = useQuery({
     queryKey: ['order', 'active', tableId],
@@ -31,6 +49,10 @@ export const usePosOrder = (tableId?: string) => {
         return null;
       }
     },
+    enabled: Boolean(tableId), // 🛑 Bloquea peticiones /orders/undefined/table
+    staleTime: 1000 * 30,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
   // 2. Obtener categorías y productos
@@ -40,17 +62,41 @@ export const usePosOrder = (tableId?: string) => {
       const { data } = await api.get<Category[]>('/catalogo-inventario');
       return data;
     },
+    enabled: Boolean(tableId), // 🛑 No pide categorías en la pantalla de administración de órdenes
+    staleTime: Infinity,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
 
-  // const productsQuery = useQuery({
-  //   queryKey: ['products'],
-  //   queryFn: async () => {
-  //     const { data } = await api.get<Product[]>('catalogo-inventario/product');
-    
-  //     return data;
-  //   },
-  // });
 
+ // 6. Mutación para cancelar producto de la comanda
+  const cancelItemMutation = useMutation({
+    mutationFn: async ({
+      orderId,
+      itemId,
+    }: {
+      orderId: string;
+      itemId: string;
+    }) => {
+      const { data } = await api.delete(`/orders/${orderId}/items/${itemId}`);
+      return data;
+    },
+    onSuccess: () => {
+      // Invalida la lista de órdenes activas para que se actualice la vista
+      queryClient.invalidateQueries({ queryKey: ['openOrders'] });
+      if (tableId) {
+        queryClient.invalidateQueries({ queryKey: ['table', tableId] });
+        queryClient.invalidateQueries({ queryKey: ['order', 'active', tableId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['tables'] });
+      toast.success('Producto cancelado correctamente');
+    },
+    onError: (err:string) => {
+      toast.error(
+       'Error al cancelar el producto de la orden'
+      );
+    },
+  });
 
   const productsQuery = useQuery({
     queryKey: ['pos', 'products'],
@@ -59,7 +105,9 @@ export const usePosOrder = (tableId?: string) => {
       const { data } = await api.get<Product[]>('/catalogo-inventario/product/pos');
       return Array.isArray(data) ? data : [];
     },
-    staleTime: 1000 * 60 * 5, // 5 minutos de frescura en la comanda
+    enabled: Boolean(tableId), // 🛑 No pide productos en la pantalla de administración de órdenes
+    staleTime: 1000 * 60 * 5,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
 
@@ -106,6 +154,7 @@ export const usePosOrder = (tableId?: string) => {
       }
     },
     onSuccess: () => {
+     queryClient.invalidateQueries({ queryKey: ['openOrders'] });
       queryClient.invalidateQueries({ queryKey: ['table', tableId] });
       queryClient.invalidateQueries({ queryKey: ['order', 'active', tableId] });
       queryClient.invalidateQueries({ queryKey: ['tables'] });
@@ -117,10 +166,13 @@ export const usePosOrder = (tableId?: string) => {
     activeOrder: activeOrderQuery.data,
     categories: categoriesQuery.data || [],
     products: productsQuery.data || [],
+    openOrders:openOrders.data,
+    cancelItem:cancelItemMutation,
     isLoading:
       tableQuery.isLoading ||
       categoriesQuery.isLoading ||
       productsQuery.isLoading,
     sendRound: sendRoundMutation,
+    refetchOpenOrders: openOrders.refetch,
   };
 };
