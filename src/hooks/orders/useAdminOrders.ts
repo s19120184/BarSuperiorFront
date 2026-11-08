@@ -8,6 +8,7 @@ export interface CancelTarget {
   itemId: string;
   itemTitle: string;
   tableNumber: number;
+  tableId?:string;
   quantity?: number;
 }
 
@@ -68,6 +69,7 @@ export const useAdminOrders = () => {
       await cancelItem.mutateAsync({
         orderId: targetItem.orderId,
         itemId: targetItem.itemId,
+        tableId: targetItem.tableId,
       });
       setTargetItem(null);
     } catch {

@@ -188,6 +188,7 @@ export default function OrdersAdminPage() {
                                 itemId: item.id,
                                 itemTitle: item.product?.title || 'este producto',
                                 tableNumber: +order.table.number,
+                                tableId: order.table?.id, // <-- Enviar el id de la mesa
                                 quantity: item.quantity,
                               })
                             }
