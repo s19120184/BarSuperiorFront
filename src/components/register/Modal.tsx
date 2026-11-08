@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
@@ -11,6 +11,8 @@ import {
   MovementFormValues
 } from "../../schemas/cash-register.schema";
 import { usePosOrder } from "@/src/hooks/usePosOrder";
+import { useCategories } from "@/src/hooks/categories/useCategories";
+import { CategoryOption } from "../admin/ProductModal";
 
 interface ModalProps<T> {
   isOpen: boolean;
@@ -40,7 +42,17 @@ export const ExpenseModal: React.FC<ModalProps<ExpenseFormValues>> = ({
     }
   });
 
-  const {categories} = usePosOrder()
+  // const {categories} = usePosOrder()
+
+   // 1. Categorías disponibles para el selector
+    const { data: rawCategories = [] } = useCategories();
+    const categories  = useMemo(() => {
+      return Array.isArray(rawCategories)
+        ? rawCategories
+        : ((rawCategories as any)?.data ?? []);
+    }, [rawCategories]);
+
+    
 
   if (!isOpen) return null;
 
@@ -136,7 +148,7 @@ export const ExpenseModal: React.FC<ModalProps<ExpenseFormValues>> = ({
             >
               <option value="">Selecciona una categoría...</option>
               {/*  mapear aquí las categorías traídas de tu API de gastos */}
-              {categories.map((cat)=>(
+              {categories.map((cat:CategoryOption)=>(
                   <option key={cat.id} value={cat.id}>{cat.title}</option>
               ))}
               

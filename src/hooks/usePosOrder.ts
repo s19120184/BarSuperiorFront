@@ -55,8 +55,8 @@ export const usePosOrder = (tableId?: string) => {
       const { data } = await api.get<Category[]>('/catalogo-inventario');
       return data;
     },
-    enabled: Boolean(tableId),
-    staleTime: Infinity,
+    //enabled: Boolean(tableId),
+    staleTime: 1000 * 40, // 40 segundos infinity anterior,
     refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
